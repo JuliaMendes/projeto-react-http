@@ -10,6 +10,7 @@ import {
 
 import Usuarios from "./components/Usuarios/Usuarios";
 import AdicionarUsuario from "./components/AdicionarUsuario/AdicionarUsuario";
+import DetalhesUsuario from "./components/DetalhesUsuario/DetalhesUsuario";
 import Home from "./components/Home/Home";
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/usuarios" element={<Usuarios/>} />
+            <Route path="/usuarios/:id" element={<DetalhesUsuario/>} />
             <Route path="/adicionar" element={<AdicionarUsuario/>} />
             <Route path="/" element={<Home />} />
             <Route path="*" element={<PaginaNaoEncontrada />} />
