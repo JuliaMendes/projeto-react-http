@@ -1,49 +1,58 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from "react";
 
-import AdicionarUsuario from '../AdicionarUsuario/AdicionarUsuario'
-import Usuario from '../Usuario/Usuario'
+import AdicionarUsuario from "../AdicionarUsuario/AdicionarUsuario";
+import Usuario from "../Usuario/Usuario";
 
-class Usuarios extends Component {
+function Usuarios() {
+  const [usuarios, setUsuarios] = useState([]);
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      usuarios: [
-        { id: 1, nome: 'João', sobrenome: 'Silva', email: 'joao@mail.com' },
-        { id: 2, nome: 'Maria', sobrenome: 'Santos', email: 'maria@mail.com' }
-      ]
+  useEffect(() => {
+    fetch("https://reqres.in/api/users")
+      .then((resposta) => resposta.json())
+      .then((dados) => {
+        const usuarios = dados.data.map((usuario) => ({
+          id: usuario.id,
+          nome: usuario.first_name,
+          sobrenome: usuario.last_name,
+          email: usuario.email,
+        }));
+        setUsuarios(usuarios);
+      });
+  }, []);
+
+  const adicionarUsuario = (usuario) => {
+    setUsuarios((usuariosAtuais) => [...usuariosAtuais, usuario]);
+  };
+
+  const removerUsuario = (usuario) => {
+    if (
+      window.confirm(
+        `Tem certeza que deseja remover "${usuario.nome} ${usuario.sobrenome}"?`
+      )
+    ) {
+      fetch(`https://reqres.in/api/users/${usuario.id}`, {
+        method: "DELETE",
+      }).then((resposta) => {
+        if (resposta.ok) {
+          setUsuarios(usuarios.filter((x) => x.id !== usuario.id));
+        }
+      });
     }
+  };
 
-    this.adicionarUsuario = this.adicionarUsuario.bind(this)
-  }
+  return (
+    <>
+      <AdicionarUsuario adicionarUsuario={adicionarUsuario} />
 
-  adicionarUsuario(usuario) {
-    const usuarios = [...this.state.usuarios, usuario]
-    this.setState({ usuarios: usuarios })
-  }
-
-  removerUsuario(usuario) {
-    if (window.confirm(`Tem certeza que deseja remover "${usuario.nome} ${usuario.sobrenome}"?`)) {
-      let usuarios = this.state.usuarios
-      usuarios = usuarios.filter(x => x.id !== usuario.id)
-      this.setState({ usuarios: usuarios })
-    }
-  }
-
-  render() {
-    return (
-      <>
-        <AdicionarUsuario adicionarUsuario={this.adicionarUsuario} />
-
-        {this.state.usuarios.map(usuario => (
-          <Usuario key={usuario.id}
-            usuario={usuario}
-            removerUsuario={this.removerUsuario.bind(this, usuario)}
-          />
-        ))}
-      </>
-    )
-  }
+      {usuarios.map((usuario) => (
+        <Usuario
+          key={usuario.id}
+          usuario={usuario}
+          removerUsuario={() => removerUsuario(usuario)}
+        />
+      ))}
+    </>
+  );
 }
 
-export default Usuarios
+export default Usuarios;
